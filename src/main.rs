@@ -1,33 +1,39 @@
+//--- IMPORTS ---//
 use std::env;
 
 use serenity::{
     async_trait,
+    framework::standard::macros::{command, group},
+    framework::standard::{CommandResult, StandardFramework},
     model::{channel::Message, gateway::Ready},
     prelude::*,
 };
 
 mod config;
+//--- END IMPORTS ---//
+
+//--- STRUCTS ---//
+#[group]
+#[commands(help)]
+struct General;
+
+struct Handler;
+//--- END STRUCTS ---//
 
 //--- COMMANDS ---//
-const PREFIX: &str = "+";
-
 const HELP_MESSAGE: &str = "Okay Boomer";
 
-const HELP_COMMAND: &str = "help";
+#[command]
+async fn help(ctx: &Context, msg: &Message) -> CommandResult {
+    msg.reply(ctx, HELP_MESSAGE).await?;
 
-//--- FUNCTIONS ---//
-struct Handler;
+    Ok(())
+}
+//--- END COMMANDS --//
 
+//--- BOT ---//
 #[async_trait]
 impl EventHandler for Handler {
-    async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content == format!("{}{}", PREFIX, HELP_COMMAND) {
-            if let Err(error) = msg.channel_id.say(&ctx.http, HELP_MESSAGE).await {
-                println!("Error sending message: {:?}", error);
-            }
-        }
-    }
-
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
@@ -35,16 +41,29 @@ impl EventHandler for Handler {
 
 #[tokio::main]
 async fn main() {
+    // configure auth token
     config::config::main();
-
     let token = env::var("DISCORD_TOKEN").expect("Expected a token in the environment");
 
-    let mut client = Client::builder(&token)
+    // configure framework
+    let framework = StandardFramework::new()
+        .configure(|c| c.prefix("+")) // set the bot's prefix to "+"
+        .group(&GENERAL_GROUP);
+
+    // login
+    let intents = GatewayIntents::non_privileged()
+        | GatewayIntents::MESSAGE_CONTENT
+        | GatewayIntents::GUILD_PRESENCES
+        | GatewayIntents::GUILD_MEMBERS;
+    let mut client = Client::builder(&token, intents)
         .event_handler(Handler)
+        .framework(framework)
         .await
         .expect("Err creating client");
 
-    if let Err(why) = client.start().await {
-        println!("Client error: {:?}", why);
+    // connection error handler
+    if let Err(error) = client.start().await {
+        println!("Client error: {:?}", error);
     }
 }
+//--- END BOT ---//
