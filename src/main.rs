@@ -1,5 +1,5 @@
 //--- IMPORTS ---//
-use std::env;
+use std::{env, fs::File, io::Read};
 
 use serenity::{
     async_trait,
@@ -14,7 +14,7 @@ mod config;
 
 //--- STRUCTS ---//
 #[group]
-#[commands(help)]
+#[commands(help, about)]
 struct General;
 
 struct Handler;
@@ -26,6 +26,34 @@ const HELP_MESSAGE: &str = "Okay Boomer";
 #[command]
 async fn help(ctx: &Context, msg: &Message) -> CommandResult {
     msg.reply(ctx, HELP_MESSAGE).await?;
+
+    Ok(())
+}
+
+#[command]
+async fn about(ctx: &Context, msg: &Message) -> CommandResult {
+    let filename = "README.md";
+    let mut content = String::new();
+    const TRY_HELP: &str = "\n Try typing '+help'";
+    // Open the file in read-only mode.
+    match File::open(filename) {
+        Ok(mut file) => {
+            // Read all the file content into a variable (ignoring the result of the operation).
+            file.read_to_string(&mut content).unwrap();
+            // The file is automatically closed when is goes out of scope.
+        }
+
+        Err(error) => {
+            println!("Error opening file {}: {}", filename, error);
+        }
+    }
+    if let Err(error) = msg
+        .channel_id
+        .say(&ctx.http, format!("{}{}", content, TRY_HELP))
+        .await
+    {
+        println!("Error sending message: {:?}", error);
+    }
 
     Ok(())
 }
