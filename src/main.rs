@@ -1,15 +1,19 @@
 //--- IMPORTS ---//
-use std::{env, fs::File, io::Read};
+use std::env;
 
 use serenity::{
-    async_trait,
-    framework::standard::macros::{command, group},
-    framework::standard::{CommandResult, StandardFramework},
-    model::{channel::Message, gateway::Ready},
-    prelude::*,
+    async_trait, framework::standard::macros::group, framework::standard::StandardFramework,
+    model::gateway::Ready, prelude::*,
 };
 
-mod config;
+pub mod commands;
+pub mod config;
+
+pub use commands::text::{about, help};
+
+//Static imports for commands
+use crate::commands::ABOUT_COMMAND;
+use crate::commands::HELP_COMMAND;
 //--- END IMPORTS ---//
 
 //--- STRUCTS ---//
@@ -19,45 +23,6 @@ struct General;
 
 struct Handler;
 //--- END STRUCTS ---//
-
-//--- COMMANDS ---//
-const HELP_MESSAGE: &str = "Okay Boomer";
-
-#[command]
-async fn help(ctx: &Context, msg: &Message) -> CommandResult {
-    msg.reply(ctx, HELP_MESSAGE).await?;
-
-    Ok(())
-}
-
-#[command]
-async fn about(ctx: &Context, msg: &Message) -> CommandResult {
-    let filename = "README.md";
-    let mut content = String::new();
-    const TRY_HELP: &str = "\n Try typing '+help'";
-    // Open the file in read-only mode.
-    match File::open(filename) {
-        Ok(mut file) => {
-            // Read all the file content into a variable (ignoring the result of the operation).
-            file.read_to_string(&mut content).unwrap();
-            // The file is automatically closed when is goes out of scope.
-        }
-
-        Err(error) => {
-            println!("Error opening file {}: {}", filename, error);
-        }
-    }
-    if let Err(error) = msg
-        .channel_id
-        .say(&ctx.http, format!("{}{}", content, TRY_HELP))
-        .await
-    {
-        println!("Error sending message: {:?}", error);
-    }
-
-    Ok(())
-}
-//--- END COMMANDS --//
 
 //--- BOT ---//
 #[async_trait]
