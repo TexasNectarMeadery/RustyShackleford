@@ -1,15 +1,19 @@
 //--- IMPORTS ---//
 use std::env;
+use regex::Regex;
 
 use serenity::{
     async_trait, framework::standard::macros::group, framework::standard::StandardFramework,
-    model::gateway::Ready, prelude::*,
+    model::{channel::Message, gateway::Ready},
+    prelude::*,
 };
 
 pub mod commands;
 pub mod config;
+//pub mod utils;
 
 pub use commands::text::{about, help};
+//pub use utils::{regex_lib};
 
 //Static imports for commands
 use crate::commands::ABOUT_COMMAND;
@@ -27,6 +31,19 @@ struct Handler;
 //--- BOT ---//
 #[async_trait]
 impl EventHandler for Handler {
+    async fn message(&self, ctx: Context, msg: Message) {
+        //let regex_map = regex_lib::LibRegex::new().build_regex_map();
+        // if regex_map.len() > 0 {
+        //     println!("{}", regex_map.get("test").as_str());
+        // }
+        let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+        if re.is_match(msg.content.as_str()) {
+            if let Err(why) = msg.channel_id.say(&ctx.http, "It worked!").await {
+                println!("Error sending message: {:?}", why);
+            }
+        }
+    }
+    
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.name);
     }
