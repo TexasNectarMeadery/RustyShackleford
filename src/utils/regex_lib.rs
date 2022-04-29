@@ -16,8 +16,9 @@ impl LibRegex {
 
     pub fn build_regex_map(&mut self) -> &mut Self {
         self.regex_map = HashMap::from([
-            (r"^\d{4}-\d{2}-\d{2}$".to_string(), "Cool, I'll be there".to_string()),
-            (r"test".to_string(), "Oh, so you think you are a coder...".to_string())
+            (r"\d{4}-\d{2}-\d{2}".to_string(), "Cool, I'll be there".to_string()),
+            (r"test".to_string(), "Oh, so you think you are a coder...".to_string()),
+            (r"me".to_string(), "me".to_string())
         ]);
         self
     }
