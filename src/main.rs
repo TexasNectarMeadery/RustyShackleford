@@ -1,6 +1,5 @@
 //--- IMPORTS ---//
 use std::env;
-use regex::Regex;
 
 use serenity::{
     async_trait, framework::standard::macros::group, framework::standard::StandardFramework,
@@ -10,10 +9,10 @@ use serenity::{
 
 pub mod commands;
 pub mod config;
-//pub mod utils;
+pub mod utils;
 
 pub use commands::text::{about, help};
-//pub use utils::{regex_lib};
+pub use utils::{regex_lib};
 
 //Static imports for commands
 use crate::commands::ABOUT_COMMAND;
@@ -28,18 +27,24 @@ struct General;
 struct Handler;
 //--- END STRUCTS ---//
 
+const BOT_ID: &str = "967821729818877962";
+
 //--- BOT ---//
 #[async_trait]
 impl EventHandler for Handler {
+
+    // REGEX MESSAGE HANDLER
     async fn message(&self, ctx: Context, msg: Message) {
-        //let regex_map = regex_lib::LibRegex::new().build_regex_map();
-        // if regex_map.len() > 0 {
-        //     println!("{}", regex_map.get("test").as_str());
-        // }
-        let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
-        if re.is_match(msg.content.as_str()) {
-            if let Err(why) = msg.channel_id.say(&ctx.http, "It worked!").await {
-                println!("Error sending message: {:?}", why);
+        if msg.author.id.to_string() != BOT_ID {
+            let mut regex_dict = regex_lib::LibRegex::new();
+            regex_dict.build_regex_map();
+            if regex_dict.regex_map.len() > 0 {
+                let resp = regex_dict.regex_search(msg.content.as_str());
+                if resp != "" {
+                    if let Err(why) = msg.channel_id.say(&ctx.http, resp).await {
+                        println!("Error sending message: {:?}", why);
+                    }
+                }
             }
         }
     }

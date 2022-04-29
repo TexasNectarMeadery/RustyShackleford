@@ -20,3 +20,5 @@ serenity = { default-features = false, features = [
     "utils",
     "rustls_backend",
 ], version = "0.11" }
+regex = "1"
+dict = "0.1.5"
