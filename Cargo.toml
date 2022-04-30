@@ -22,3 +22,4 @@ serenity = { default-features = false, features = [
 ], version = "0.11" }
 regex = "1"
 dict = "0.1.5"
+rand = "0.8.5"
