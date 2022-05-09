@@ -8,11 +8,30 @@ use serenity::{
 };
 //--- END IMPORTS ---//
 
+const TRY_HELP: &str = "\n Try typing '+help'";
+
 #[command]
 async fn about(ctx: &Context, msg: &Message) -> CommandResult {
+    if let Err(error) = msg
+        .channel_id
+        .say(&ctx.http, format!("{}{}", parse_readme(), TRY_HELP))
+        .await
+    {
+        println!("Error sending message: {:?}", error);
+    }
+
+    Ok(())
+}
+
+// Slash command
+pub fn about_resp() -> String {
+    return parse_readme();
+}
+
+// Parse README.md
+fn parse_readme() -> String {
     let filename = "README.md";
     let mut content = String::new();
-    const TRY_HELP: &str = "\n Try typing '+help'";
     // Open the file in read-only mode.
     match File::open(filename) {
         Ok(mut file) => {
@@ -25,13 +44,5 @@ async fn about(ctx: &Context, msg: &Message) -> CommandResult {
             println!("Error opening file {}: {}", filename, error);
         }
     }
-    if let Err(error) = msg
-        .channel_id
-        .say(&ctx.http, format!("{}{}", content, TRY_HELP))
-        .await
-    {
-        println!("Error sending message: {:?}", error);
-    }
-
-    Ok(())
+    return content;
 }

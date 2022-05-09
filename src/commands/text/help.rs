@@ -14,3 +14,8 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
 
     Ok(())
 }
+
+// Slash command
+pub fn help_resp() -> String {
+    return HELP_MESSAGE.to_string();
+}
