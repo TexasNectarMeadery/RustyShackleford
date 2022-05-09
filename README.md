@@ -9,8 +9,8 @@ Rust-based Discord bot
 * help
 
 ### TODO
+* Move new slash commands into commands directory.
 * Whitelist/blacklist channel command.
 * Find server to host rather than run locally.
 * Refactor about.rs to use I/O helper class.
-* Generate regex HashMap from file rather than hardcoded.
 * Brainstorm future commands.
